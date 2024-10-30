@@ -53,6 +53,20 @@ public class PlayerController : MonoBehaviour
     private CameraController cameracontroller;
     private GameManager gameManager;
 
+    public bool ValidateInput()
+    {
+        // Check if any of the WASD keys are being pressed
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || 
+            Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) || 
+            Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.Q) || 
+            Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.LeftShift))
+        {
+            return true; // Valid WASD input
+        }
+
+        return false; // No input or invalid keys pressed
+    }
+    public bool InputDetected = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -67,7 +81,17 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // get the user's input
-        
+        if (ValidateInput() && InputDetected == false)
+        {
+            // Process movement logic here
+            Debug.Log("Valid input detected.");
+            InputDetected = true;
+        }
+        if (!ValidateInput() && InputDetected == false)
+        {
+            // Process movement logic here
+            Debug.Log("No valid input detected.");
+        }
 
         // move the plane forward at a constant rate
         planeRb.velocity = transform.forward * -speed;
