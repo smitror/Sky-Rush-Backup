@@ -26,6 +26,11 @@ public class Timer : MonoBehaviour
     public float Canyonstarcount;
     public float Grassstarcount;
     public float Starcount;
+    public float TimeBuffer = 5;
+
+    public List<float> SnowtimeBoundaries = new List<float> {28, 38, 60};
+    public List<float> CanyontimeBoundaries = new List<float> {22, 25, 60};
+    public List<float> GrasstimeBoundaries = new List<float> {20, 25, 60};
     // Start is called before the first frame update
     void Start()
     {
@@ -59,7 +64,7 @@ public class Timer : MonoBehaviour
         StarNum.text = (Starcount).ToString("F0");
 
 
-        if ((timerActive == false) && (Snowmap == true) && (currentTime <= 60) && (currentTime >= 5))
+        if ((timerActive == false) && (Snowmap == true) && (currentTime <= SnowtimeBoundaries[2]) && (currentTime >= TimeBuffer))
         {
             Starone();
             snowstars.snowstar1();
@@ -68,7 +73,7 @@ public class Timer : MonoBehaviour
                 Snowstarcount = 1;
             }
         }
-        if ((timerActive == false) && (Snowmap == true) && (currentTime <= 38) && (currentTime >= 5))
+        if ((timerActive == false) && (Snowmap == true) && (currentTime <= SnowtimeBoundaries[1]) && (currentTime >= TimeBuffer))
         {
             Startwo();
             snowstars.snowstar2();
@@ -77,7 +82,7 @@ public class Timer : MonoBehaviour
                 Snowstarcount = 2;
             }
         }
-        if ((timerActive == false) && (Snowmap == true) && (currentTime <= 28) && (currentTime >= 5))
+        if ((timerActive == false) && (Snowmap == true) && (currentTime <= SnowtimeBoundaries[0]) && (currentTime >= TimeBuffer))
         {
             Starthree();
             snowstars.snowstar3();
@@ -89,7 +94,7 @@ public class Timer : MonoBehaviour
 
 
 
-        if ((timerActive == false) && (Canyonmap == true) && (currentTime <= 60) && (currentTime >= 5))
+        if ((timerActive == false) && (Canyonmap == true) && (currentTime <= CanyontimeBoundaries[2]) && (currentTime >= TimeBuffer))
         {
             Starone();
             canyonstars.canyonstar1();
@@ -98,7 +103,7 @@ public class Timer : MonoBehaviour
                 Canyonstarcount = 1;
             }
         }
-        if ((timerActive == false) && (Canyonmap == true) && (currentTime <= 25) && (currentTime >= 5))
+        if ((timerActive == false) && (Canyonmap == true) && (currentTime <= CanyontimeBoundaries[1]) && (currentTime >= TimeBuffer))
         {
             Startwo();
             canyonstars.canyonstar2();
@@ -107,7 +112,7 @@ public class Timer : MonoBehaviour
                 Canyonstarcount = 2;
             }
         }
-        if ((timerActive == false) && (Canyonmap == true) && (currentTime <= 22) && (currentTime >= 5))
+        if ((timerActive == false) && (Canyonmap == true) && (currentTime <= CanyontimeBoundaries[0]) && (currentTime >= TimeBuffer))
         {
             Starthree();
             canyonstars.canyonstar3();
@@ -118,7 +123,7 @@ public class Timer : MonoBehaviour
         }
 
 
-        if ((timerActive == false) && (Grassmap == true) && (currentTime <= 60) && (currentTime >= 5))
+        if ((timerActive == false) && (Grassmap == true) && (currentTime <= GrasstimeBoundaries[2]) && (currentTime >= TimeBuffer))
         {
             Starone();
             grassstars.grassstar1();
@@ -127,7 +132,7 @@ public class Timer : MonoBehaviour
                 Grassstarcount = 1;
             }
         }
-        if ((timerActive == false) && (Grassmap == true) && (currentTime <= 25) && (currentTime >= 5))
+        if ((timerActive == false) && (Grassmap == true) && (currentTime <= GrasstimeBoundaries[1]) && (currentTime >= TimeBuffer))
         {
             Startwo();
             grassstars.grassstar2();
@@ -136,7 +141,7 @@ public class Timer : MonoBehaviour
                 Grassstarcount = 2;
             }
         }
-        if ((timerActive == false) && (Grassmap == true) && (currentTime <= 20) && (currentTime >= 5))
+        if ((timerActive == false) && (Grassmap == true) && (currentTime <= GrasstimeBoundaries[0]) && (currentTime >= TimeBuffer))
         {
             Starthree();
             grassstars.grassstar3();

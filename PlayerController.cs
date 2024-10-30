@@ -55,13 +55,13 @@ public class PlayerController : MonoBehaviour
 
     public bool ValidateInput()
     {
-        // Check if any of the WASD keys are being pressed
+        // Check if any of the usable keys are being pressed
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || 
             Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) || 
             Input.GetKey(KeyCode.E) || Input.GetKey(KeyCode.Q) || 
             Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.LeftShift))
         {
-            return true; // Valid WASD input
+            return true; // Valid input
         }
 
         return false; // No input or invalid keys pressed
@@ -80,16 +80,16 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // get the user's input
+        // Check the users input
         if (ValidateInput() && InputDetected == false)
         {
-            // Process movement logic here
+            // Valid Input has been detected
             Debug.Log("Valid input detected.");
             InputDetected = true;
         }
         if (!ValidateInput() && InputDetected == false)
         {
-            // Process movement logic here
+            // No Valid Input has been detected
             Debug.Log("No valid input detected.");
         }
 

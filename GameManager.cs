@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     // Is the game running or is the player in the menu
-    public bool isGameActive = false;
+    public bool IsGameActive = false;
 
     // Is the FPS counter active
     public bool IsFPSActive = false;
@@ -20,10 +20,10 @@ public class GameManager : MonoBehaviour
     public GameObject Plane;
 
     // UI Game objects
-    public GameObject titleScreen;
-    public GameObject resetScreen;
-    public GameObject completeScreen;
-    public GameObject mapScreen;
+    public GameObject TitleScreen;
+    public GameObject ResetScreen;
+    public GameObject CompleteScreen;
+    public GameObject MapScreen;
     public GameObject ControlsScreen;
     public GameObject SettingsScreen;
     public GameObject InGame;
@@ -41,10 +41,10 @@ public class GameManager : MonoBehaviour
     public Text DistanceScoreCount;
     
     // Level Game objects
-    public GameObject canyon;
-    public GameObject grass;
-    public GameObject snow;
-    public GameObject infinte;
+    public GameObject CanyonObjects;
+    public GameObject GrassObjects;
+    public GameObject SnowObjects;
+    public GameObject InfinteObjects;
     
     // Access other scripts
     private PlayerController playercontroller;
@@ -57,16 +57,16 @@ public class GameManager : MonoBehaviour
     public Camera cam;
 
     // Variables
-    private float plane_speed;
-    private float last_speed;
-    public float zoomStep;
-    private float _hudRefreshRate = 1f;
-    private float _timer;
-    float currentFov; //currentQuantity
-    float desiredFov; //desiredQuantity
+    private float PlaneSpeed;
+    private float LastSpeed;
+    public float ZoomStep;
+    private float HudRefreshRate = 1f;
+    private float TimerFPS;
+    float CurrentFov; //currentQuantity
+    float DesiredFov; //desiredQuantity
     
     // Update Texts
-    public Text _fpsText;
+    public Text FPSText;
     public Text FOVText;
 
     // Settings Slider
@@ -89,11 +89,11 @@ public class GameManager : MonoBehaviour
         // Set objects to not be active
         Plane.gameObject.SetActive(false);
         ControlsScreen.gameObject.SetActive(false);
-        infinte.gameObject.SetActive(false);
+        InfinteObjects.gameObject.SetActive(false);
 
         // Set FOV
-        currentFov = 70f;
-        desiredFov = currentFov;
+        CurrentFov = 70f;
+        DesiredFov = CurrentFov;
 
         // Dont lock the cursor
         Cursor.lockState = CursorLockMode.None;
@@ -101,27 +101,27 @@ public class GameManager : MonoBehaviour
         void Update()
     {
         // Get the plane's speed for the player controller script
-        plane_speed = playercontroller.speed;
+        PlaneSpeed = playercontroller.speed;
 
         // FOV
-        if (isGameActive)
+        if (IsGameActive)
         {
-            zoomStep = mySlider.value;
+            ZoomStep = mySlider.value;
 
             // If the plane is slowing down decease fov
-            if (plane_speed < last_speed)
+            if (PlaneSpeed < LastSpeed)
             {
                 // Zoom in
-                last_speed = plane_speed;
-                desiredFov = 60f;
+                LastSpeed = PlaneSpeed;
+                DesiredFov = 60f;
                 // CurrentFOV to minFOV
             }
             // Else if the plane is speeding up increase the fov
-            else if (plane_speed > last_speed)
+            else if (PlaneSpeed > LastSpeed)
             {
                 // Zoom
-                last_speed = plane_speed;
-                desiredFov = 80f;
+                LastSpeed = PlaneSpeed;
+                DesiredFov = 80f;
                 // Current FOV to maxFOV
             }
             speedSound.mute = false;
@@ -129,28 +129,28 @@ public class GameManager : MonoBehaviour
         // If the game is not active reset the fov back to 70
         else
         {
-            zoomStep = 20.0f;
-            desiredFov = 70f;
+            ZoomStep = 20.0f;
+            DesiredFov = 70f;
             speedSound.mute = true;
         }
 
         // Apply the fov to the camera
-        currentFov = Mathf.MoveTowards(currentFov, desiredFov, zoomStep * Time.deltaTime);
-        cam.fieldOfView = currentFov;
+        CurrentFov = Mathf.MoveTowards(CurrentFov, DesiredFov, ZoomStep * Time.deltaTime);
+        cam.fieldOfView = CurrentFov;
 
         // Calculate the distance score for the infinte level
         DistanceScoreCount.text = (-Plane.transform.position.z).ToString("0 M");
         FOVText.text = (mySlider.value).ToString("F0");
 
         // FOV counter
-        if (Time.unscaledTime > _timer)
+        if (Time.unscaledTime > TimerFPS)
         {
             int fps = (int)(1f / Time.unscaledDeltaTime);
-            _fpsText.text = " " + fps;
-            _timer = Time.unscaledTime + _hudRefreshRate;
+            FPSText.text = " " + fps;
+            TimerFPS = Time.unscaledTime + HudRefreshRate;
         }
 
-        if ((plane_speed > 70) && !isPlaying)
+        if ((PlaneSpeed > 70) && !isPlaying)
         {
             StartCoroutine(PlaySoundWhileSpeeding());
         }
@@ -175,7 +175,7 @@ public class GameManager : MonoBehaviour
     {
         ResetUI();
         resetInfinte();
-        isGameActive = true;
+        IsGameActive = true;
         StarTimes.gameObject.SetActive(true);
         InGame.gameObject.SetActive(true);
         
@@ -192,16 +192,16 @@ public class GameManager : MonoBehaviour
         Plane.transform.position = new Vector3(0, 0, 0);
         Plane.transform.rotation = Quaternion.identity;
         playercontroller.resetPlane();
-        
     }
     public void PlaneResetting()
     {
         playercontroller.resetPlaneVelocity();
+        IsGameActive = false;
     }
     public void ResetTitleScreen()
     {
         ResetUI();
-        titleScreen.gameObject.SetActive(true);
+        TitleScreen.gameObject.SetActive(true);
         StarTimes.gameObject.SetActive(true);
         resetInfinte();
         Plane.transform.position = new Vector3(0, 0, 0);
@@ -213,7 +213,7 @@ public class GameManager : MonoBehaviour
     public void SetMapUI()
     {
         ResetUI();
-        mapScreen.gameObject.SetActive(true);
+        MapScreen.gameObject.SetActive(true);
     }
     public void ControlsUI()
     {
@@ -231,9 +231,9 @@ public class GameManager : MonoBehaviour
     {
         timer.StartTimer();
         ResetGame();
-        titleScreen.gameObject.SetActive(true);
+        TitleScreen.gameObject.SetActive(true);
         StarTimes.gameObject.SetActive(true);
-        canyon.gameObject.SetActive(true);
+        CanyonObjects.gameObject.SetActive(true);
         CanyonTimes.gameObject.SetActive(true);
         timer.CanyonActive();
     }
@@ -241,9 +241,9 @@ public class GameManager : MonoBehaviour
     {
         timer.StartTimer();
         ResetGame();
-        titleScreen.gameObject.SetActive(true);
+        TitleScreen.gameObject.SetActive(true);
         StarTimes.gameObject.SetActive(true);
-        grass.gameObject.SetActive(true);
+        GrassObjects.gameObject.SetActive(true);
         GrassTimes.gameObject.SetActive(true);
         timer.GrassActive();
     }
@@ -251,9 +251,9 @@ public class GameManager : MonoBehaviour
     {
         timer.StartTimer();
         ResetGame();
-        titleScreen.gameObject.SetActive(true);
+        TitleScreen.gameObject.SetActive(true);
         StarTimes.gameObject.SetActive(true);
-        snow.gameObject.SetActive(true);
+        SnowObjects.gameObject.SetActive(true);
         SnowTimes.gameObject.SetActive(true);
 
         timer.SnowActive();
@@ -262,9 +262,9 @@ public class GameManager : MonoBehaviour
     {
         timer.StartTimer();
         ResetGame();
-        titleScreen.gameObject.SetActive(true);
+        TitleScreen.gameObject.SetActive(true);
         StarTimes.gameObject.SetActive(true);
-        infinte.gameObject.SetActive(true);
+        InfinteObjects.gameObject.SetActive(true);
         StarTimes.gameObject.SetActive(false);
         InfinteActive = true;
         InfinteScoreCounter.gameObject.SetActive(true);
@@ -275,7 +275,7 @@ public class GameManager : MonoBehaviour
 
     public void crash()
     {
-       isGameActive = false;
+       IsGameActive = false;
     }
     public void resetInfinte()
     {
@@ -288,13 +288,13 @@ public class GameManager : MonoBehaviour
     }
     public void ResetGame()
     {
-        titleScreen.gameObject.SetActive(false);
+        TitleScreen.gameObject.SetActive(false);
         StarTimes.gameObject.SetActive(false);
-        mapScreen.gameObject.SetActive(false);
-        canyon.gameObject.SetActive(false);
-        grass.gameObject.SetActive(false);
-        snow.gameObject.SetActive(false);
-        infinte.gameObject.SetActive(false);
+        MapScreen.gameObject.SetActive(false);
+        CanyonObjects.gameObject.SetActive(false);
+        GrassObjects.gameObject.SetActive(false);
+        SnowObjects.gameObject.SetActive(false);
+        InfinteObjects.gameObject.SetActive(false);
         SnowTimes.gameObject.SetActive(false);
         CanyonTimes.gameObject.SetActive(false);
         GrassTimes.gameObject.SetActive(false);
@@ -305,13 +305,13 @@ public class GameManager : MonoBehaviour
     }
     public void ResetUI()
     {
-        titleScreen.gameObject.SetActive(false);
+        TitleScreen.gameObject.SetActive(false);
         StarTimes.gameObject.SetActive(false);
-        resetScreen.gameObject.SetActive(false);
-        completeScreen.gameObject.SetActive(false);
+        ResetScreen.gameObject.SetActive(false);
+        CompleteScreen.gameObject.SetActive(false);
         InGame.gameObject.SetActive(false);
         ControlsScreen.gameObject.SetActive(false);
-        mapScreen.gameObject.SetActive(false);
+        MapScreen.gameObject.SetActive(false);
         SettingsScreen.gameObject.SetActive(false);
     }
     public void FPSsetting()
@@ -329,8 +329,4 @@ public class GameManager : MonoBehaviour
             IsFPSActive = false;
         }
     }
- 
-
- 
-
 }
