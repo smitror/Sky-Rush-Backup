@@ -71,7 +71,10 @@ public class GameManager : MonoBehaviour
 
     // Settings Slider
     public Slider mySlider;
+
+    private bool isPlaying = false;
     
+    public AudioSource speedSound;
  
     // Start is called before the first frame update
     void Start()
@@ -121,12 +124,14 @@ public class GameManager : MonoBehaviour
                 desiredFov = 80f;
                 // Current FOV to maxFOV
             }
+            speedSound.mute = false;
         }
         // If the game is not active reset the fov back to 70
         else
         {
             zoomStep = 20.0f;
             desiredFov = 70f;
+            speedSound.mute = true;
         }
 
         // Apply the fov to the camera
@@ -144,8 +149,25 @@ public class GameManager : MonoBehaviour
             _fpsText.text = " " + fps;
             _timer = Time.unscaledTime + _hudRefreshRate;
         }
+
+        if ((plane_speed > 70) && !isPlaying)
+        {
+            StartCoroutine(PlaySoundWhileSpeeding());
+        }
         
 
+    }
+    private System.Collections.IEnumerator PlaySoundWhileSpeeding()
+    {
+        isPlaying = true;
+        while (isPlaying)
+        {
+            if (!speedSound.isPlaying)
+            {
+                speedSound.Play();
+            }
+            yield return null; // Wait for the next frame
+        }
     }
 
     // When the start button is clicked
@@ -253,7 +275,7 @@ public class GameManager : MonoBehaviour
 
     public void crash()
     {
-       
+       isGameActive = false;
     }
     public void resetInfinte()
     {
