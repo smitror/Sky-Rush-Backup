@@ -1,0 +1,332 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class GameManager : MonoBehaviour
+{
+    // Is the game running or is the player in the menu
+    public bool IsGameActive = false;
+
+    // Is the FPS counter active
+    public bool IsFPSActive = false;
+
+    // Is the infinte level active
+    public bool InfinteActive = false;
+
+    // In Game objects
+    public GameObject Plane;
+
+    // UI Game objects
+    public GameObject TitleScreen;
+    public GameObject ResetScreen;
+    public GameObject CompleteScreen;
+    public GameObject MapScreen;
+    public GameObject ControlsScreen;
+    public GameObject SettingsScreen;
+    public GameObject InGame;
+    public GameObject Star1;
+    public GameObject Star2;
+    public GameObject Star3;
+    public GameObject SnowTimes;
+    public GameObject CanyonTimes;
+    public GameObject GrassTimes;
+    public GameObject StarTimes;
+    public GameObject InfinteScoreCounter;
+    public GameObject TimerCounter;
+    public GameObject FPSDisplay;
+    public GameObject FPSTick;
+    public Text DistanceScoreCount;
+    
+    // Level Game objects
+    public GameObject CanyonObjects;
+    public GameObject GrassObjects;
+    public GameObject SnowObjects;
+    public GameObject InfinteObjects;
+    
+    // Access other scripts
+    private PlayerController playercontroller;
+    private ControlsPlaneController controlsPlaneController;
+    private InfinteMap infintemap;
+    private InfinteMapTwo infintemap2;
+    private Timer timer;
+
+    // Camera controls
+    public Camera cam;
+
+    // Variables
+    private float PlaneSpeed;
+    private float LastSpeed;
+    public float ZoomStep;
+    private float HudRefreshRate = 1f;
+    private float TimerFPS;
+    float CurrentFov; //currentQuantity
+    float DesiredFov; //desiredQuantity
+    
+    // Update Texts
+    public Text FPSText;
+    public Text FOVText;
+
+    // Settings Slider
+    public Slider mySlider;
+
+    private bool isPlaying = false;
+    
+    public AudioSource speedSound;
+ 
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Access scripts
+        playercontroller = GameObject.Find("Plane").GetComponent<PlayerController>();
+        timer = GameObject.Find("Canvas").GetComponent<Timer>();
+        controlsPlaneController = GameObject.Find("ControlPlane").GetComponent<ControlsPlaneController>();
+        infintemap = GameObject.Find("Group 1").GetComponent<InfinteMap>();
+        infintemap2 = GameObject.Find("Group 2").GetComponent<InfinteMapTwo>();
+
+        // Set objects to not be active
+        Plane.gameObject.SetActive(false);
+        ControlsScreen.gameObject.SetActive(false);
+        InfinteObjects.gameObject.SetActive(false);
+
+        // Set FOV
+        CurrentFov = 70f;
+        DesiredFov = CurrentFov;
+
+        // Dont lock the cursor
+        Cursor.lockState = CursorLockMode.None;
+    }
+        void Update()
+    {
+        // Get the plane's speed for the player controller script
+        PlaneSpeed = playercontroller.speed;
+
+        // FOV
+        if (IsGameActive)
+        {
+            ZoomStep = mySlider.value;
+
+            // If the plane is slowing down decease fov
+            if (PlaneSpeed < LastSpeed)
+            {
+                // Zoom in
+                LastSpeed = PlaneSpeed;
+                DesiredFov = 60f;
+                // CurrentFOV to minFOV
+            }
+            // Else if the plane is speeding up increase the fov
+            else if (PlaneSpeed > LastSpeed)
+            {
+                // Zoom
+                LastSpeed = PlaneSpeed;
+                DesiredFov = 80f;
+                // Current FOV to maxFOV
+            }
+            speedSound.mute = false;
+        }
+        // If the game is not active reset the fov back to 70
+        else
+        {
+            ZoomStep = 20.0f;
+            DesiredFov = 70f;
+            speedSound.mute = true;
+        }
+
+        // Apply the fov to the camera
+        CurrentFov = Mathf.MoveTowards(CurrentFov, DesiredFov, ZoomStep * Time.deltaTime);
+        cam.fieldOfView = CurrentFov;
+
+        // Calculate the distance score for the infinte level
+        DistanceScoreCount.text = (-Plane.transform.position.z).ToString("0 M");
+        FOVText.text = (mySlider.value).ToString("F0");
+
+        // FOV counter
+        if (Time.unscaledTime > TimerFPS)
+        {
+            int fps = (int)(1f / Time.unscaledDeltaTime);
+            FPSText.text = " " + fps;
+            TimerFPS = Time.unscaledTime + HudRefreshRate;
+        }
+
+        if ((PlaneSpeed > 70) && !isPlaying)
+        {
+            StartCoroutine(PlaySoundWhileSpeeding());
+        }
+        
+
+    }
+    private System.Collections.IEnumerator PlaySoundWhileSpeeding()
+    {
+        isPlaying = true;
+        while (isPlaying)
+        {
+            if (!speedSound.isPlaying)
+            {
+                speedSound.Play();
+            }
+            yield return null; // Wait for the next frame
+        }
+    }
+
+    // When the start button is clicked
+    public void StartGame()
+    {
+        ResetUI();
+        resetInfinte();
+        IsGameActive = true;
+        StarTimes.gameObject.SetActive(true);
+        InGame.gameObject.SetActive(true);
+        
+        Plane.gameObject.SetActive(true);
+        timer.StartTimer();
+        Star1.gameObject.SetActive(false);
+        Star2.gameObject.SetActive(false);
+        Star3.gameObject.SetActive(false);
+        
+        if (InfinteActive == true)
+        {
+            StarTimes.gameObject.SetActive(false);
+        }
+        Plane.transform.position = new Vector3(0, 0, 0);
+        Plane.transform.rotation = Quaternion.identity;
+        playercontroller.resetPlane();
+    }
+    public void PlaneResetting()
+    {
+        playercontroller.resetPlaneVelocity();
+        IsGameActive = false;
+    }
+    public void ResetTitleScreen()
+    {
+        ResetUI();
+        TitleScreen.gameObject.SetActive(true);
+        StarTimes.gameObject.SetActive(true);
+        resetInfinte();
+        Plane.transform.position = new Vector3(0, 0, 0);
+        if (InfinteActive == true)
+        {
+            StarTimes.gameObject.SetActive(false);
+        }
+    }
+    public void SetMapUI()
+    {
+        ResetUI();
+        MapScreen.gameObject.SetActive(true);
+    }
+    public void ControlsUI()
+    {
+        ResetUI();
+        ControlsScreen.gameObject.SetActive(true);
+        controlsPlaneController.reset();
+        Plane.transform.position = new Vector3(205, 0, 0);
+    }
+    public void Settings()
+    {
+        ResetUI();
+        SettingsScreen.gameObject.SetActive(true);
+    }
+    public void Canyon()
+    {
+        timer.StartTimer();
+        ResetGame();
+        TitleScreen.gameObject.SetActive(true);
+        StarTimes.gameObject.SetActive(true);
+        CanyonObjects.gameObject.SetActive(true);
+        CanyonTimes.gameObject.SetActive(true);
+        timer.CanyonActive();
+    }
+    public void Grass()
+    {
+        timer.StartTimer();
+        ResetGame();
+        TitleScreen.gameObject.SetActive(true);
+        StarTimes.gameObject.SetActive(true);
+        GrassObjects.gameObject.SetActive(true);
+        GrassTimes.gameObject.SetActive(true);
+        timer.GrassActive();
+    }
+    public void Snow()
+    {
+        timer.StartTimer();
+        ResetGame();
+        TitleScreen.gameObject.SetActive(true);
+        StarTimes.gameObject.SetActive(true);
+        SnowObjects.gameObject.SetActive(true);
+        SnowTimes.gameObject.SetActive(true);
+
+        timer.SnowActive();
+    }
+    public void Infinte()
+    {
+        timer.StartTimer();
+        ResetGame();
+        TitleScreen.gameObject.SetActive(true);
+        StarTimes.gameObject.SetActive(true);
+        InfinteObjects.gameObject.SetActive(true);
+        StarTimes.gameObject.SetActive(false);
+        InfinteActive = true;
+        InfinteScoreCounter.gameObject.SetActive(true);
+        TimerCounter.gameObject.SetActive(false);
+        resetInfinte();
+    }
+
+
+    public void crash()
+    {
+       IsGameActive = false;
+    }
+    public void resetInfinte()
+    {
+        infintemap.resetm();
+        infintemap2.resetm2();
+    }
+    public void ResetPlane()
+    {
+        Plane.transform.position = new Vector3(0, 0, 0);
+    }
+    public void ResetGame()
+    {
+        TitleScreen.gameObject.SetActive(false);
+        StarTimes.gameObject.SetActive(false);
+        MapScreen.gameObject.SetActive(false);
+        CanyonObjects.gameObject.SetActive(false);
+        GrassObjects.gameObject.SetActive(false);
+        SnowObjects.gameObject.SetActive(false);
+        InfinteObjects.gameObject.SetActive(false);
+        SnowTimes.gameObject.SetActive(false);
+        CanyonTimes.gameObject.SetActive(false);
+        GrassTimes.gameObject.SetActive(false);
+        InfinteActive = false;
+        Plane.transform.position = new Vector3(0, 0, 0);
+        InfinteScoreCounter.gameObject.SetActive(false);
+        TimerCounter.gameObject.SetActive(true);
+    }
+    public void ResetUI()
+    {
+        TitleScreen.gameObject.SetActive(false);
+        StarTimes.gameObject.SetActive(false);
+        ResetScreen.gameObject.SetActive(false);
+        CompleteScreen.gameObject.SetActive(false);
+        InGame.gameObject.SetActive(false);
+        ControlsScreen.gameObject.SetActive(false);
+        MapScreen.gameObject.SetActive(false);
+        SettingsScreen.gameObject.SetActive(false);
+    }
+    public void FPSsetting()
+    {
+        if (IsFPSActive == false)
+        {
+            FPSDisplay.gameObject.SetActive(true);
+            FPSTick.gameObject.SetActive(true);
+            IsFPSActive = true;
+        }
+        else if (IsFPSActive == true)
+        {
+            FPSDisplay.gameObject.SetActive(false);
+            FPSTick.gameObject.SetActive(false);
+            IsFPSActive = false;
+        }
+    }
+}
